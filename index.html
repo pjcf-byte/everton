@@ -6,14 +6,29 @@
     <title>Everton FC Home Fixture Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* CSS Theme Variables */
         :root {
             --primary-color: #003399; /* Everton Royal Blue */
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
-            --border-radius: 16px;
+            --border-color: rgba(229, 231, 235, 0.8);
+            --icon-bg: rgba(0, 51, 153, 0.08);
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            --toggle-bg: #e5e7eb;
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --icon-bg: rgba(59, 130, 246, 0.15);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --toggle-bg: #334155;
         }
 
         * {
@@ -21,6 +36,7 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
         }
 
         body {
@@ -39,8 +55,32 @@
         }
 
         header {
-            text-align: center;
-            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin-bottom: 28px;
+        }
+
+        .theme-toggle-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--toggle-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle-btn:hover {
+            opacity: 0.9;
         }
 
         header h1 {
@@ -50,6 +90,11 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            margin-top: 10px;
+        }
+
+        [data-theme="dark"] header h1 {
+            color: #3b82f6;
         }
 
         header p {
@@ -72,14 +117,14 @@
 
         .card {
             background: var(--card-bg);
-            border-radius: var(--border-radius);
+            border-radius: 16px;
             padding: 24px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            border: 1px solid rgba(229, 231, 235, 0.8);
+            border: 1px solid var(--border-color);
         }
 
         .card::before {
@@ -90,6 +135,10 @@
             width: 100%;
             height: 4px;
             background-color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .card::before {
+            background-color: #3b82f6;
         }
 
         .card-header {
@@ -111,11 +160,15 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: rgba(0, 51, 153, 0.08);
+            background-color: var(--icon-bg);
             color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        [data-theme="dark"] .card-icon {
+            color: #3b82f6;
         }
 
         .card-value {
@@ -150,6 +203,10 @@
 
     <div class="dashboard-container">
         <header>
+            <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Light/Dark Theme">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+                <span id="theme-text">Dark</span>
+            </button>
             <h1><i class="fa-solid fa-house"></i> Everton FC Dashboard</h1>
             <p>Next Home Premier League Fixture</p>
         </header>
@@ -184,12 +241,48 @@
         </main>
 
         <div class="status-footer">
-            <span class="status-indicator" id="status-dot"></span>
-            <span id="status-text">Next Home Fixture Loaded</span>
+            <span class="status-indicator"></span>
+            <span>Next Home Fixture Loaded</span>
         </div>
     </div>
 
     <script>
+        // Theme Switch Handler
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            if (theme === 'dark') {
+                themeIcon.className = 'fa-solid fa-sun';
+                themeText.textContent = 'Light';
+            } else {
+                themeIcon.className = 'fa-solid fa-moon';
+                themeText.textContent = 'Dark';
+            }
+        }
+
+        // Initialize saved or default OS theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (systemPrefersDark) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        // Dynamic API Fetch with Static Fallback
         const API_URL = 'https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133615';
 
         async function updateDashboard() {
@@ -200,14 +293,12 @@
                 const data = await response.json();
                 if (!data.events || data.events.length === 0) return;
 
-                // Find the next home fixture
                 const nextHomeMatch = data.events.find(event => 
                     event.strHomeTeam && event.strHomeTeam.toLowerCase().includes('everton')
                 );
 
                 if (nextHomeMatch) {
                     document.getElementById('val-opponent').textContent = `vs ${nextHomeMatch.strAwayTeam}`;
-                    
                     if (nextHomeMatch.dateEvent) {
                         const dateObj = new Date(nextHomeMatch.dateEvent);
                         document.getElementById('val-date').textContent = dateObj.toLocaleDateString('en-GB', {
@@ -218,7 +309,7 @@
                     }
                 }
             } catch (e) {
-                // Keep default static content if dynamic fetching fails due to browser CORS rules
+                // Keep default static fallback values on CORS error
             }
         }
 
