@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everton Ticket On-Sale Dashboard</title>
-    <!-- FontAwesome for icons -->
+    <title>Everton FC Fixture Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #003399; /* Everton Royal Blue */
-            --primary-light: #1a4db2;
+            --primary-color: #003399; /* Everton Blue */
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --border-radius: 16px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
@@ -32,13 +30,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 16px;
+            padding: 24px 16px;
         }
 
         .dashboard-container {
             width: 100%;
             max-width: 900px;
-            margin: 0 auto;
         }
 
         header {
@@ -49,7 +46,6 @@
         header h1 {
             color: var(--primary-color);
             font-size: 1.75rem;
-            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -68,22 +64,9 @@
             gap: 16px;
         }
 
-        /* Responsive Breakpoints */
         @media (min-width: 640px) {
             .grid-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .card-wide {
-                grid-column: span 2;
-            }
-        }
-
-        @media (min-width: 850px) {
-            .grid-container {
                 grid-template-columns: repeat(3, 1fr);
-            }
-            .card-wide {
-                grid-column: span 1;
             }
         }
 
@@ -96,14 +79,7 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            overflow: hidden;
             border: 1px solid rgba(229, 231, 235, 0.8);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
         }
 
         .card::before {
@@ -132,40 +108,23 @@
         }
 
         .card-icon {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background-color: rgba(0, 51, 153, 0.08);
             color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
         }
 
         .card-value {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--text-main);
             word-break: break-word;
             min-height: 40px;
             display: flex;
             align-items: center;
-        }
-
-        /* Loading Skeleton Animation */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 6px;
-            height: 28px;
-            width: 80%;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
         }
 
         .status-footer {
@@ -183,11 +142,11 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #10b981; /* Green active status */
+            background-color: #10b981;
         }
 
         .status-indicator.error {
-            background-color: #ef4444; /* Red error status */
+            background-color: #ef4444;
         }
     </style>
 </head>
@@ -195,20 +154,18 @@
 
     <div class="dashboard-container">
         <header>
-            <h1><i class="fa-solid fa-ticket"></i> Everton FC Tickets</h1>
-            <p>Next Available Fixture & Member Ballot Info</p>
+            <h1><i class="fa-solid fa-futbol"></i> Everton FC Dashboard</h1>
+            <p>Next Match & On-Sale Status</p>
         </header>
 
         <main class="grid-container">
             <!-- Card 1: Opponent -->
-            <div class="card card-wide">
+            <div class="card">
                 <div class="card-header">
                     <span class="card-title">Opponent</span>
                     <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                 </div>
-                <div class="card-value" id="val-opponent">
-                    <div class="skeleton"></div>
-                </div>
+                <div class="card-value" id="val-opponent">Loading...</div>
             </div>
 
             <!-- Card 2: Date -->
@@ -217,126 +174,80 @@
                     <span class="card-title">Fixture Date</span>
                     <div class="card-icon"><i class="fa-regular fa-calendar-days"></i></div>
                 </div>
-                <div class="card-value" id="val-date">
-                    <div class="skeleton"></div>
-                </div>
+                <div class="card-value" id="val-date">Loading...</div>
             </div>
 
-            <!-- Card 3: On Sale -->
+            <!-- Card 3: On Sale Info -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Forever Blue+ Ballot</span>
-                    <div class="card-icon"><i class="fa-solid fa-clock"></i></div>
+                    <span class="card-title">On Sale</span>
+                    <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
                 </div>
-                <div class="card-value" id="val-onsale">
-                    <div class="skeleton"></div>
-                </div>
+                <div class="card-value" id="val-onsale">Loading...</div>
             </div>
         </main>
 
         <div class="status-footer">
             <span class="status-indicator" id="status-dot"></span>
-            <span id="status-text">Fetching latest fixture data...</span>
+            <span id="status-text">Fetching fixture data...</span>
         </div>
     </div>
 
-   <script>
-    // Target BBC Sport's official Everton fixtures page
-    const TARGET_URL = 'https://www.bbc.com/sport/football/teams/everton/fixtures';
-    
-    // Array of public CORS proxy fallbacks
-    const PROXY_GENERATORS = [
-        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        url => `https://thingproxy.freeboard.io/fetch/${url}`
-    ];
+    <script>
+        // Everton FC Team ID on TheSportsDB: 133615
+        const API_URL = 'https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133615';
 
-    async function fetchBBCSportHTML() {
-        for (const getProxyUrl of PROXY_GENERATORS) {
-            const proxyUrl = getProxyUrl(TARGET_URL);
+        async function fetchFixtureData() {
+            const opponentEl = document.getElementById('val-opponent');
+            const dateEl = document.getElementById('val-date');
+            const onsaleEl = document.getElementById('val-onsale');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+
             try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) continue;
-
-                let htmlString = '';
-                if (proxyUrl.includes('allorigins')) {
-                    const data = await response.json();
-                    htmlString = data.contents;
-                } else {
-                    htmlString = await response.text();
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('API Request Failed');
+                
+                const data = await response.json();
+                
+                if (!data.events || data.events.length === 0) {
+                    throw new Error('No upcoming events found');
                 }
 
-                // Verify valid content was returned
-                if (htmlString && (htmlString.includes('sp-c-fixture') || htmlString.includes('qa-match-block') || htmlString.includes('Everton'))) {
-                    return htmlString;
-                }
+                const nextMatch = data.events[0];
+
+                // Determine Opponent
+                const isHome = nextMatch.strHomeTeam.toLowerCase().includes('everton');
+                const opponentName = isHome ? `vs ${nextMatch.strAwayTeam}` : `@ ${nextMatch.strHomeTeam}`;
+
+                // Format Date
+                const matchDate = new Date(`${nextMatch.dateEvent}T${nextMatch.strTime || '00:00:00'}`);
+                const formattedDate = matchDate.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                // Display values
+                opponentEl.textContent = opponentName;
+                dateEl.textContent = formattedDate !== 'Invalid Date' ? formattedDate : nextMatch.dateEvent;
+                onsaleEl.textContent = 'Check EvertonFC.com'; // Ticket sales info requires club website
+
+                statusText.textContent = 'Live data loaded from TheSportsDB API';
+                statusDot.classList.remove('error');
+
             } catch (err) {
-                console.warn(`Proxy failed: ${proxyUrl}`);
+                console.error(err);
+                opponentEl.textContent = 'Unavailable';
+                dateEl.textContent = 'Unavailable';
+                onsaleEl.textContent = 'Unavailable';
+
+                statusText.textContent = 'Failed to load fixture data.';
+                statusDot.classList.add('error');
             }
         }
-        throw new Error('All CORS proxies were unavailable.');
-    }
 
-    async function fetchDashboardData() {
-        const opponentEl = document.getElementById('val-opponent');
-        const dateEl = document.getElementById('val-date');
-        const onsaleEl = document.getElementById('val-onsale');
-        const statusDot = document.getElementById('status-dot');
-        const statusText = document.getElementById('status-text');
-
-        try {
-            const rawHtml = await fetchBBCSportHTML();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(rawHtml, 'text/html');
-
-            // 1. Locate the first fixture element on BBC Sport
-            const firstMatch = doc.querySelector('[class*="FixtureGroup"], [class*="MatchBlock"], article, li.sp-c-fixture');
-            if (!firstMatch) throw new Error("Could not find fixture elements on BBC page.");
-
-            // 2. Extract Home & Away team names
-            const teams = Array.from(firstMatch.querySelectorAll('[class*="TeamName"], [class*="team-name"], span[abbr]'))
-                               .map(el => el.textContent.trim())
-                               .filter(name => name.length > 0);
-
-            let opponent = "N/A";
-            if (teams.length >= 2) {
-                // Determine which team is the opponent (not Everton)
-                opponent = teams[0].toLowerCase().includes("everton") ? `vs ${teams[1]}` : `@ ${teams[0]}`;
-            } else if (teams.length === 1) {
-                opponent = teams[0];
-            } else {
-                // Fallback text query
-                opponent = firstMatch.textContent.replace(/Everton/gi, '').trim().slice(0, 20);
-            }
-
-            // 3. Extract Match Date & Kickoff Time
-            const dateNode = firstMatch.querySelector('time, [class*="Date"], [class*="Time"]');
-            const dateVal = dateNode ? dateNode.textContent.trim() : "Upcoming";
-
-            // 4. Set Member Ballot / Status Column
-            // Note: BBC Sport hosts general match details. On-sale ballot info is exclusive to EvertonFC.com
-            const onsaleVal = "Check EvertonFC.com";
-
-            // Update UI
-            opponentEl.textContent = opponent;
-            dateEl.textContent = dateVal;
-            onsaleEl.textContent = onsaleVal;
-
-            statusText.textContent = `Live data source: BBC Sport`;
-            statusDot.classList.remove('error');
-
-        } catch (err) {
-            console.error("Scraping error:", err);
-            opponentEl.textContent = "Unavailable";
-            dateEl.textContent = "Unavailable";
-            onsaleEl.textContent = "Unavailable";
-
-            statusText.textContent = "Failed to load BBC Sport data via proxy.";
-            statusDot.classList.add('error');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchDashboardData);
-</script>
+        document.addEventListener('DOMContentLoaded', fetchFixtureData);
+    </script>
 </body>
 </html>
