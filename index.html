@@ -230,24 +230,24 @@
                 <div class="card-value" id="val-date">19 Sep 2026</div>
             </div>
 
-            <!-- Card 3: On Sale Info -->
+            <!-- Card 3: Ticket Holder (Static lookup from CSV) -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">On Sale</span>
-                    <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
+                    <span class="card-title">Ticket Holder</span>
+                    <div class="card-icon"><i class="fa-solid fa-user-ticket"></i></div>
                 </div>
-                <div class="card-value" id="val-onsale">Check EvertonFC.com</div>
+                <div class="card-value" id="val-holder">Loading...</div>
             </div>
         </main>
 
         <div class="status-footer">
             <span class="status-indicator"></span>
-            <span>Next Home Fixture Loaded</span>
+            <span id="status-text">Next Home Fixture Loaded</span>
         </div>
     </div>
 
     <script>
-        // Theme Switch Handler
+        // --- Theme Switch Handler ---
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
@@ -265,7 +265,6 @@
             }
         }
 
-        // Initialize saved or default OS theme
         const savedTheme = localStorage.getItem('theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -282,35 +281,89 @@
             setTheme(currentTheme === 'dark' ? 'light' : 'dark');
         });
 
-        // Dynamic API Fetch with Static Fallback
+        // --- Helper: Simple CSV Parser ---
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split(/\r?\n/);
+            if (lines.length < 2) return [];
+
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const oppIdx = headers.indexOf('opponent');
+            const holderIdx = headers.indexOf('holder');
+
+            if (oppIdx === -1 || holderIdx === -1) return [];
+
+            return lines.slice(1).map(line => {
+                const columns = line.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+                return {
+                    opponent: columns[oppIdx] || '',
+                    holder: columns[holderIdx] || ''
+                };
+            });
+        }
+
+        // --- Fetch CSV and Match Ticket Holder ---
+        async function loadTicketHolder(opponentName) {
+            const holderEl = document.getElementById('val-holder');
+            try {
+                const response = await fetch('tickets.csv');
+                if (!response.ok) throw new Error('tickets.csv file not found');
+
+                const csvText = await response.text();
+                const records = parseCSV(csvText);
+
+                // Clean opponent string (removes 'vs ', '@ ', etc. for matching)
+                const cleanOpponent = opponentName.replace(/^(vs\s+|@\s+)/i, '').trim().toLowerCase();
+
+                // Find matching opponent row in CSV
+                const match = records.find(row => 
+                    row.opponent.toLowerCase().trim() === cleanOpponent ||
+                    cleanOpponent.includes(row.opponent.toLowerCase().trim()) ||
+                    row.opponent.toLowerCase().trim().includes(cleanOpponent)
+                );
+
+                holderEl.textContent = match ? match.holder : 'Not Assigned';
+            } catch (err) {
+                console.warn('CSV lookup error:', err);
+                holderEl.textContent = 'N/A';
+            }
+        }
+
+        // --- Main Dashboard Updater ---
         const API_URL = 'https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133615';
 
         async function updateDashboard() {
+            let currentOpponent = 'Ipswich Town'; // Default fallback opponent
+
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) return;
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.events && data.events.length > 0) {
+                        const nextHomeMatch = data.events.find(event => 
+                            event.strHomeTeam && event.strHomeTeam.toLowerCase().includes('everton')
+                        );
 
-                const data = await response.json();
-                if (!data.events || data.events.length === 0) return;
-
-                const nextHomeMatch = data.events.find(event => 
-                    event.strHomeTeam && event.strHomeTeam.toLowerCase().includes('everton')
-                );
-
-                if (nextHomeMatch) {
-                    document.getElementById('val-opponent').textContent = `vs ${nextHomeMatch.strAwayTeam}`;
-                    if (nextHomeMatch.dateEvent) {
-                        const dateObj = new Date(nextHomeMatch.dateEvent);
-                        document.getElementById('val-date').textContent = dateObj.toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                        });
+                        if (nextHomeMatch) {
+                            currentOpponent = nextHomeMatch.strAwayTeam;
+                            document.getElementById('val-opponent').textContent = `vs ${currentOpponent}`;
+                            
+                            if (nextHomeMatch.dateEvent) {
+                                const dateObj = new Date(nextHomeMatch.dateEvent);
+                                document.getElementById('val-date').textContent = dateObj.toLocaleDateString('en-GB', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric'
+                                });
+                            }
+                        }
                     }
                 }
             } catch (e) {
-                // Keep default static fallback values on CORS error
+                // Keep default static fallback values if API is blocked by CORS
             }
+
+            // Load the ticket holder for the identified opponent
+            loadTicketHolder(currentOpponent);
         }
 
         document.addEventListener('DOMContentLoaded', updateDashboard);
