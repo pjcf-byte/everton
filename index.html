@@ -241,77 +241,89 @@
     </div>
 
     <script>
-        const TARGET_URL = 'https://www.evertonfc.com/tickets/on-sale-dates';
-        // Using allorigins proxy to bypass CORS restrictions on client-side scraping
-        const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET_URL)}`;
+       // Array of fallback CORS proxy generators
+const PROXY_GENERATORS = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://thingproxy.freeboard.io/fetch/${url}`
+];
 
-        async function fetchDashboardData() {
-            const opponentEl = document.getElementById('val-opponent');
-            const dateEl = document.getElementById('val-date');
-            const onsaleEl = document.getElementById('val-onsale');
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
+const TARGET_URL = 'https://www.evertonfc.com/tickets/on-sale-dates';
 
-            try {
-                const response = await fetch(PROXY_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                
+async function fetchEvertonHTML() {
+    for (const getProxyUrl of PROXY_GENERATORS) {
+        const proxyUrl = getProxyUrl(TARGET_URL);
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) continue;
+
+            let htmlString = '';
+            if (proxyUrl.includes('allorigins')) {
                 const data = await response.json();
-                
-                // Parse HTML string from response
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-
-                // Find the main data table
-                const table = doc.querySelector('table');
-                if (!table) throw new Error("Could not locate on-sale dates table.");
-
-                // Map header names to column indexes dynamically
-                const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim().toLowerCase());
-                
-                let fixtureIdx = headers.findIndex(h => h.includes('fixture') || h.includes('match') || h.includes('opponent'));
-                let dateIdx = headers.findIndex(h => h.includes('date'));
-                let ballotIdx = headers.findIndex(h => h.includes('forever blue+') || h.includes('ballot') || h.includes('member'));
-
-                // Fallbacks if header names differ slightly
-                if (fixtureIdx === -1) fixtureIdx = 0;
-                if (dateIdx === -1) dateIdx = 1;
-                if (ballotIdx === -1) ballotIdx = 2;
-
-                // Grab the first row from the tbody (or table body rows)
-                const firstRow = table.querySelector('tbody tr') || table.querySelectorAll('tr')[1];
-                if (!firstRow) throw new Error("No fixture rows found.");
-
-                const cells = firstRow.querySelectorAll('td');
-
-                // Extract values safely
-                const opponentVal = cells[fixtureIdx]?.textContent.trim() || 'N/A';
-                const dateVal = cells[dateIdx]?.textContent.trim() || 'N/A';
-                const onsaleVal = cells[ballotIdx]?.textContent.trim() || 'N/A';
-
-                // Update UI Elements
-                opponentEl.textContent = opponentVal;
-                dateEl.textContent = dateVal;
-                onsaleEl.textContent = onsaleVal;
-
-                statusText.textContent = `Live data updated from EvertonFC.com`;
-                statusDot.classList.remove('error');
-
-            } catch (err) {
-                console.error("Scraping error:", err);
-                
-                // Display error states
-                opponentEl.textContent = "Unable to load";
-                dateEl.textContent = "Unable to load";
-                onsaleEl.textContent = "Unable to load";
-                
-                statusText.textContent = "Failed to fetch data. CORS proxy or source unavailable.";
-                statusDot.classList.add('error');
+                htmlString = data.contents;
+            } else {
+                htmlString = await response.text();
             }
-        }
 
-        // Run fetch on load
-        document.addEventListener('DOMContentLoaded', fetchDashboardData);
+            if (htmlString && htmlString.includes('<table')) {
+                return htmlString; // Valid HTML payload returned
+            }
+        } catch (err) {
+            console.warn(`Proxy failed: ${proxyUrl}`);
+        }
+    }
+    throw new Error('All CORS proxies were blocked or unavailable.');
+}
+
+async function fetchDashboardData() {
+    const opponentEl = document.getElementById('val-opponent');
+    const dateEl = document.getElementById('val-date');
+    const onsaleEl = document.getElementById('val-onsale');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+
+    try {
+        const rawHtml = await fetchEvertonHTML();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, 'text/html');
+
+        const table = doc.querySelector('table');
+        if (!table) throw new Error("Could not locate on-sale dates table.");
+
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim().toLowerCase());
+        
+        let fixtureIdx = headers.findIndex(h => h.includes('fixture') || h.includes('match') || h.includes('opponent'));
+        let dateIdx = headers.findIndex(h => h.includes('date'));
+        let ballotIdx = headers.findIndex(h => h.includes('forever blue+') || h.includes('ballot') || h.includes('member'));
+
+        if (fixtureIdx === -1) fixtureIdx = 0;
+        if (dateIdx === -1) dateIdx = 1;
+        if (ballotIdx === -1) ballotIdx = 2;
+
+        const firstRow = table.querySelector('tbody tr') || table.querySelectorAll('tr')[1];
+        if (!firstRow) throw new Error("No fixture rows found.");
+
+        const cells = firstRow.querySelectorAll('td');
+
+        opponentEl.textContent = cells[fixtureIdx]?.textContent.trim() || 'N/A';
+        dateEl.textContent = cells[dateIdx]?.textContent.trim() || 'N/A';
+        onsaleEl.textContent = cells[ballotIdx]?.textContent.trim() || 'N/A';
+
+        statusText.textContent = `Live data updated from EvertonFC.com`;
+        statusDot.classList.remove('error');
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+        opponentEl.textContent = "Unavailable";
+        dateEl.textContent = "Unavailable";
+        onsaleEl.textContent = "Unavailable";
+        
+        statusText.textContent = "Public proxies blocked. Refresh or try again later.";
+        statusDot.classList.add('error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', fetchDashboardData);
     </script>
 </body>
 </html>
