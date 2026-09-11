@@ -47,6 +47,7 @@
             flex-direction: column;
             align-items: center;
             padding: 24px 16px;
+            text-align: center; /* Center align all base body text */
         }
 
         .dashboard-container {
@@ -60,6 +61,7 @@
             align-items: center;
             position: relative;
             margin-bottom: 28px;
+            text-align: center;
         }
 
         .theme-toggle-btn {
@@ -74,6 +76,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 0.85rem;
             font-weight: 600;
@@ -91,6 +94,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 10px;
+            text-align: center;
         }
 
         [data-theme="dark"] header h1 {
@@ -101,6 +105,22 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Section Header Styles - Centered */
+        .section-header {
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-align: center;
         }
 
         .grid-container {
@@ -122,9 +142,11 @@
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
+            align-items: center; /* Center align flex items inside card */
             justify-content: space-between;
             position: relative;
             border: 1px solid var(--border-color);
+            text-align: center;
         }
 
         .card::before {
@@ -143,9 +165,13 @@
 
         .card-header {
             display: flex;
+            flex-direction: column; /* Stack icon and title vertically centered */
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 8px;
             margin-bottom: 12px;
+            width: 100%;
+            text-align: center;
         }
 
         .card-title {
@@ -154,6 +180,7 @@
             letter-spacing: 0.05em;
             color: var(--text-muted);
             font-weight: 600;
+            text-align: center;
         }
 
         .card-icon {
@@ -178,6 +205,9 @@
             min-height: 40px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
         }
 
         .status-footer {
@@ -211,35 +241,40 @@
             <p>Next Home Premier League Fixture</p>
         </header>
 
-        <main class="grid-container">
-	<div class="section-header">
-        <h2>Next Match Overview</h2>
-    </div>
-            <!-- Card 1: Opponent -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Opponent</span>
-                    <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                </div>
-                <div class="card-value" id="val-opponent">vs Ipswich Town</div>
+        <main>
+            <!-- Section Header above the 3 Cards -->
+            <div class="section-header">
+                <h2>Next Match Overview</h2>
             </div>
 
-            <!-- Card 2: Date -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Fixture Date</span>
-                    <div class="card-icon"><i class="fa-regular fa-calendar-days"></i></div>
+            <!-- Cards Grid -->
+            <div class="grid-container">
+                <!-- Card 1: Opponent -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <span class="card-title">Opponent</span>
+                    </div>
+                    <div class="card-value" id="val-opponent">vs Ipswich Town</div>
                 </div>
-                <div class="card-value" id="val-date">19 Sep 2026</div>
-            </div>
 
-            <!-- Card 3: Ticket Holder (Static lookup from CSV) -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Ticket Holder</span>
-                    <div class="card-icon"><i class="fa-solid fa-user-ticket"></i></div>
+                <!-- Card 2: Date -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fa-regular fa-calendar-days"></i></div>
+                        <span class="card-title">Fixture Date</span>
+                    </div>
+                    <div class="card-value" id="val-date">19 Sep 2026</div>
                 </div>
-                <div class="card-value" id="val-holder">Loading...</div>
+
+                <!-- Card 3: Ticket Holder -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fa-solid fa-user-ticket"></i></div>
+                        <span class="card-title">Ticket Holder</span>
+                    </div>
+                    <div class="card-value" id="val-holder">Loading...</div>
+                </div>
             </div>
         </main>
 
