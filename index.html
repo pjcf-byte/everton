@@ -6,9 +6,8 @@
     <title>Everton FC Home Fixture Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS Theme Variables */
         :root {
-            --primary-color: #003399; /* Everton Royal Blue */
+            --primary-color: #003399;
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-main: #1f2937;
@@ -17,9 +16,9 @@
             --icon-bg: rgba(0, 51, 153, 0.08);
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
             --toggle-bg: #e5e7eb;
+            --table-hover: #f8fafc;
         }
 
-        /* Dark Theme Variables */
         [data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -29,6 +28,7 @@
             --icon-bg: rgba(59, 130, 246, 0.15);
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             --toggle-bg: #334155;
+            --table-hover: #334155;
         }
 
         * {
@@ -47,7 +47,7 @@
             flex-direction: column;
             align-items: center;
             padding: 24px 16px;
-            text-align: center; /* Center align all base body text */
+            text-align: center;
         }
 
         .dashboard-container {
@@ -82,10 +82,6 @@
             font-weight: 600;
         }
 
-        .theme-toggle-btn:hover {
-            opacity: 0.9;
-        }
-
         header h1 {
             color: var(--primary-color);
             font-size: 1.75rem;
@@ -94,21 +90,16 @@
             justify-content: center;
             gap: 10px;
             margin-top: 10px;
-            text-align: center;
         }
 
-        [data-theme="dark"] header h1 {
-            color: #3b82f6;
-        }
+        [data-theme="dark"] header h1 { color: #3b82f6; }
 
         header p {
             color: var(--text-muted);
             font-size: 0.9rem;
             margin-top: 6px;
-            text-align: center;
         }
 
-        /* Section Header Styles - Centered */
         .section-header {
             margin-bottom: 12px;
             text-align: center;
@@ -120,19 +111,17 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            text-align: center;
         }
 
         .grid-container {
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
+            margin-bottom: 32px;
         }
 
         @media (min-width: 640px) {
-            .grid-container {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .grid-container { grid-template-columns: repeat(3, 1fr); }
         }
 
         .card {
@@ -142,11 +131,10 @@
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center align flex items inside card */
+            align-items: center;
             justify-content: space-between;
             position: relative;
             border: 1px solid var(--border-color);
-            text-align: center;
         }
 
         .card::before {
@@ -159,19 +147,15 @@
             background-color: var(--primary-color);
         }
 
-        [data-theme="dark"] .card::before {
-            background-color: #3b82f6;
-        }
+        [data-theme="dark"] .card::before { background-color: #3b82f6; }
 
         .card-header {
             display: flex;
-            flex-direction: column; /* Stack icon and title vertically centered */
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 8px;
             margin-bottom: 12px;
             width: 100%;
-            text-align: center;
         }
 
         .card-title {
@@ -180,7 +164,6 @@
             letter-spacing: 0.05em;
             color: var(--text-muted);
             font-weight: 600;
-            text-align: center;
         }
 
         .card-icon {
@@ -194,9 +177,7 @@
             justify-content: center;
         }
 
-        [data-theme="dark"] .card-icon {
-            color: #3b82f6;
-        }
+        [data-theme="dark"] .card-icon { color: #3b82f6; }
 
         .card-value {
             font-size: 1.3rem;
@@ -206,13 +187,47 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
             width: 100%;
         }
 
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--icon-bg);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] th { color: #3b82f6; }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: var(--table-hover); }
+
         .status-footer {
             margin-top: 24px;
-            text-align: center;
             font-size: 0.8rem;
             color: var(--text-muted);
             display: flex;
@@ -238,49 +253,66 @@
                 <span id="theme-text">Dark</span>
             </button>
             <h1><i class="fa-solid fa-house"></i> Everton FC Dashboard</h1>
-            <p>Next Home Premier League Fixture</p>
+            <p>Home Premier League Season Schedule</p>
         </header>
 
         <main>
-            <!-- Section Header above the 3 Cards -->
             <div class="section-header">
                 <h2>Next Match Overview</h2>
             </div>
 
-            <!-- Cards Grid -->
             <div class="grid-container">
-                <!-- Card 1: Opponent -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                         <span class="card-title">Opponent</span>
                     </div>
-                    <div class="card-value" id="val-opponent">vs Ipswich Town</div>
+                    <div class="card-value" id="val-opponent">Loading...</div>
                 </div>
 
-                <!-- Card 2: Date -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon"><i class="fa-regular fa-calendar-days"></i></div>
                         <span class="card-title">Fixture Date</span>
                     </div>
-                    <div class="card-value" id="val-date">19 Sep 2026</div>
+                    <div class="card-value" id="val-date">Loading...</div>
                 </div>
 
-                <!-- Card 3: Ticket Holder -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon"><i class="fa-solid fa-user-ticket"></i></div>
+                        <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
                         <span class="card-title">Ticket Holder</span>
                     </div>
                     <div class="card-value" id="val-holder">Loading...</div>
                 </div>
             </div>
+
+            <div class="section-header">
+                <h2>Home Fixtures & Ticket Holders</h2>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Opponent</th>
+                            <th>Ticket Holder</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="home-fixtures-tbody">
+                        <tr>
+                            <td colspan="4">Loading full season schedule...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
 
         <div class="status-footer">
             <span class="status-indicator"></span>
-            <span id="status-text">Next Home Fixture Loaded</span>
+            <span id="status-text">Season Home Schedule Loaded</span>
         </div>
     </div>
 
@@ -293,40 +325,37 @@
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
-
-            if (theme === 'dark') {
-                themeIcon.className = 'fa-solid fa-sun';
-                themeText.textContent = 'Light';
-            } else {
-                themeIcon.className = 'fa-solid fa-moon';
-                themeText.textContent = 'Dark';
-            }
+            themeIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            themeText.textContent = theme === 'dark' ? 'Light' : 'Dark';
         }
 
         const savedTheme = localStorage.getItem('theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        if (savedTheme) {
-            setTheme(savedTheme);
-        } else if (systemPrefersDark) {
-            setTheme('dark');
-        } else {
-            setTheme('light');
-        }
+        setTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
 
         themeToggleBtn.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             setTheme(currentTheme === 'dark' ? 'light' : 'dark');
         });
 
-        // --- Helper: Simple CSV Parser ---
+        // --- Robust String Normalizer ---
+        function cleanString(str) {
+            return str
+                .toLowerCase()
+                .replace(/^(vs|@)\s+/i, '') // Remove prefix
+                .replace(/fc|afc|united|city/gi, '') // Remove standard team suffixes for higher match rate
+                .replace(/[^a-z0-9]/g, '') // Strips whitespace, dashes, special chars
+                .trim();
+        }
+
+        // --- CSV Parser with Delimiter Handling ---
         function parseCSV(csvText) {
             const lines = csvText.trim().split(/\r?\n/);
             if (lines.length < 2) return [];
 
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            const oppIdx = headers.indexOf('opponent');
-            const holderIdx = headers.indexOf('holder');
+            const oppIdx = headers.findIndex(h => h.includes('opponent') || h.includes('team'));
+            const holderIdx = headers.findIndex(h => h.includes('holder') || h.includes('name'));
 
             if (oppIdx === -1 || holderIdx === -1) return [];
 
@@ -336,75 +365,139 @@
                     opponent: columns[oppIdx] || '',
                     holder: columns[holderIdx] || ''
                 };
+            }).filter(item => item.opponent.length > 0);
+        }
+
+        // --- Match Holder with Opponent ---
+        function findTicketHolder(opponentName, ticketRecords) {
+            if (!opponentName || !ticketRecords.length) return 'Not Assigned';
+
+            const cleanTarget = cleanString(opponentName);
+
+            const match = ticketRecords.find(row => {
+                const cleanCsvOpponent = cleanString(row.opponent);
+                return cleanTarget.includes(cleanCsvOpponent) || cleanCsvOpponent.includes(cleanTarget);
+            });
+
+            return match ? match.holder : 'Not Assigned';
+        }
+
+        // --- API Links & Data Loader ---
+        const EVERTON_ID = '133615';
+        
+        // Season API fetches full 38-game schedule (past & future)
+        const SEASON_URL = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${EVERTON_ID}&s=2024-2025`;
+        const NEXT_URL = `https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${EVERTON_ID}`;
+        const LAST_URL = `https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${EVERTON_ID}`;
+
+        async function initDashboard() {
+            let ticketRecords = [];
+
+            // 1. Fetch CSV
+            try {
+                const csvRes = await fetch('tickets.csv');
+                if (csvRes.ok) {
+                    const csvText = await csvRes.text();
+                    ticketRecords = parseCSV(csvText);
+                }
+            } catch (err) {
+                console.warn('tickets.csv could not be loaded directly.', err);
+            }
+
+            let allEvents = [];
+
+            // 2. Fetch Full Season Data
+            try {
+                const res = await fetch(SEASON_URL);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.events) allEvents = data.events;
+                }
+            } catch (e) {
+                console.warn('Season API unreachable, falling back to recent events...');
+            }
+
+            // Fallback to Next + Last if Season endpoint is empty
+            if (allEvents.length === 0) {
+                try {
+                    const [nextRes, lastRes] = await Promise.all([fetch(NEXT_URL), fetch(LAST_URL)]);
+                    if (nextRes.ok) {
+                        const nData = await nextRes.json();
+                        if (nData.events) allEvents.push(...nData.events);
+                    }
+                    if (lastRes.ok) {
+                        const lData = await lastRes.json();
+                        if (lData.events) allEvents.push(...lData.events);
+                    }
+                } catch (err) {
+                    console.warn('Fallback APIs unavailable.');
+                }
+            }
+
+            // 3. Filter strictly for Home Matches (Everton as Home Team)
+            const homeMatches = allEvents.filter(event => 
+                event.strHomeTeam && 
+                event.strHomeTeam.toLowerCase().includes('everton')
+            );
+
+            // Sort chronologically
+            homeMatches.sort((a, b) => new Date(a.dateEvent) - new Date(b.dateEvent));
+
+            // 4. Update Overview Cards with the NEXT upcoming home game
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const nextHomeMatch = homeMatches.find(m => new Date(m.dateEvent) >= now) || homeMatches[homeMatches.length - 1];
+
+            if (nextHomeMatch) {
+                const oppName = nextHomeMatch.strAwayTeam || 'Unknown';
+                document.getElementById('val-opponent').textContent = `vs ${oppName}`;
+                
+                if (nextHomeMatch.dateEvent) {
+                    const dateObj = new Date(nextHomeMatch.dateEvent);
+                    document.getElementById('val-date').textContent = dateObj.toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    });
+                }
+                document.getElementById('val-holder').textContent = findTicketHolder(oppName, ticketRecords);
+            }
+
+            // 5. Populate Table
+            const tbody = document.getElementById('home-fixtures-tbody');
+            tbody.innerHTML = '';
+
+            if (homeMatches.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">No home fixtures found. Make sure web server is running to load local tickets.csv.</td></tr>`;
+                return;
+            }
+
+            homeMatches.forEach(match => {
+                const tr = document.createElement('tr');
+                
+                const dateObj = new Date(match.dateEvent);
+                const formattedDate = !isNaN(dateObj) 
+                    ? dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : match.dateEvent;
+
+                let resultText = 'Upcoming';
+                if (match.intHomeScore !== null && match.intHomeScore !== undefined && match.intAwayScore !== null) {
+                    resultText = `${match.intHomeScore} - ${match.intAwayScore}`;
+                }
+
+                const opponent = match.strAwayTeam || 'Unknown';
+                const holder = findTicketHolder(opponent, ticketRecords);
+
+                tr.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>vs ${opponent}</td>
+                    <td>${holder}</td>
+                    <td>${resultText}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        // --- Fetch CSV and Match Ticket Holder ---
-        async function loadTicketHolder(opponentName) {
-            const holderEl = document.getElementById('val-holder');
-            try {
-                const response = await fetch('tickets.csv');
-                if (!response.ok) throw new Error('tickets.csv file not found');
-
-                const csvText = await response.text();
-                const records = parseCSV(csvText);
-
-                // Clean opponent string (removes 'vs ', '@ ', etc. for matching)
-                const cleanOpponent = opponentName.replace(/^(vs\s+|@\s+)/i, '').trim().toLowerCase();
-
-                // Find matching opponent row in CSV
-                const match = records.find(row => 
-                    row.opponent.toLowerCase().trim() === cleanOpponent ||
-                    cleanOpponent.includes(row.opponent.toLowerCase().trim()) ||
-                    row.opponent.toLowerCase().trim().includes(cleanOpponent)
-                );
-
-                holderEl.textContent = match ? match.holder : 'Not Assigned';
-            } catch (err) {
-                console.warn('CSV lookup error:', err);
-                holderEl.textContent = 'N/A';
-            }
-        }
-
-        // --- Main Dashboard Updater ---
-        const API_URL = 'https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133615';
-
-        async function updateDashboard() {
-            let currentOpponent = 'Ipswich Town'; // Default fallback opponent
-
-            try {
-                const response = await fetch(API_URL);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.events && data.events.length > 0) {
-                        const nextHomeMatch = data.events.find(event => 
-                            event.strHomeTeam && event.strHomeTeam.toLowerCase().includes('everton')
-                        );
-
-                        if (nextHomeMatch) {
-                            currentOpponent = nextHomeMatch.strAwayTeam;
-                            document.getElementById('val-opponent').textContent = `vs ${currentOpponent}`;
-                            
-                            if (nextHomeMatch.dateEvent) {
-                                const dateObj = new Date(nextHomeMatch.dateEvent);
-                                document.getElementById('val-date').textContent = dateObj.toLocaleDateString('en-GB', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric'
-                                });
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                // Keep default static fallback values if API is blocked by CORS
-            }
-
-            // Load the ticket holder for the identified opponent
-            loadTicketHolder(currentOpponent);
-        }
-
-        document.addEventListener('DOMContentLoaded', updateDashboard);
+        document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
 </body>
 </html>
