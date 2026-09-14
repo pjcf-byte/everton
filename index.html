@@ -274,8 +274,7 @@
 
     <div class="dashboard-container">
         <header>
-            <h1>Season Ticket 2026/27</h1>
-            
+            <h1><i class="fa-solid fa-monument"></i> Season Ticket 2026/27</h1>
         </header>
 
         <main>
@@ -289,7 +288,7 @@
                         <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
                         <span class="card-title">Opponent</span>
                     </div>
-                    <div class="card-value" id="val-opponent">vs Ipswich Town</div>
+                    <div class="card-value" id="val-opponent">Loading...</div>
                 </div>
 
                 <div class="card">
@@ -297,12 +296,12 @@
                         <div class="card-icon"><i class="fa-regular fa-calendar-days"></i></div>
                         <span class="card-title">Fixture Date</span>
                     </div>
-                    <div class="card-value" id="val-date">19 Sep 2026</div>
+                    <div class="card-value" id="val-date">Loading...</div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
+                        <div class="card-icon"><i class="fa-solid fa-id-card"></i></div>
                         <span class="card-title">Ticket Holder</span>
                     </div>
                     <div class="card-value" id="val-holder">Loading...</div>
@@ -346,7 +345,7 @@
             { date: "22 Aug 2026", opponent: "Crystal Palace", venue: "H", score: "2 - 0", result: "W" },
             { date: "29 Aug 2026", opponent: "AFC Bournemouth", venue: "A", score: "1 - 1", result: "D" },
             { date: "06 Sep 2026", opponent: "Manchester United", venue: "H", score: "2 - 2", result: "D" },
-            { date: "12 Sep 2026", opponent: "Tottenham Hotspur", venue: "A", score: "17:30", result: "-" },
+            { date: "12 Sep 2026", opponent: "Tottenham Hotspur", venue: "A", score: "0 - 0", result: "D" },
             { date: "19 Sep 2026", opponent: "Ipswich Town", venue: "H", score: "15:00", result: "-" },
             { date: "11 Oct 2026", opponent: "Hull City", venue: "A", score: "14:00", result: "-" },
             { date: "17 Oct 2026", opponent: "Chelsea", venue: "H", score: "12:30", result: "-" },
@@ -405,6 +404,7 @@
 
         // --- Helper: Find Holder by Opponent Name ---
         function getHolderName(opponentName, csvRecords) {
+            if (!opponentName) return 'Unassigned';
             const cleanTarget = opponentName.replace(/^(vs\s+|@\s+)/i, '').trim().toLowerCase();
             const match = csvRecords.find(row => {
                 const cleanCsvOpp = row.opponent.toLowerCase().trim();
@@ -424,7 +424,6 @@
                 if (item.result === 'D') badgeClass = 'badge-draw';
                 if (item.result === 'L') badgeClass = 'badge-loss';
 
-                // Only lookup ticket holder if Home match (H)
                 const holderValue = item.venue === 'H' 
                     ? getHolderName(item.opponent, csvRecords) 
                     : '-';
@@ -442,10 +441,31 @@
             }).join('');
         }
 
+        // --- Automatically Find & Update Next Home Fixture Card ---
+        function updateNextMatchCard(csvRecords) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Find the first upcoming home match based on current date
+            const nextHomeMatch = seasonFixtures2627.find(item => {
+                const matchDate = new Date(item.date);
+                return item.venue === 'H' && matchDate >= today;
+            });
+
+            if (nextHomeMatch) {
+                document.getElementById('val-opponent').textContent = `vs ${nextHomeMatch.opponent}`;
+                document.getElementById('val-date').textContent = nextHomeMatch.date;
+                document.getElementById('val-holder').textContent = getHolderName(nextHomeMatch.opponent, csvRecords);
+            } else {
+                document.getElementById('val-opponent').textContent = 'Season Ended';
+                document.getElementById('val-date').textContent = '-';
+                document.getElementById('val-holder').textContent = '-';
+            }
+        }
+
         // --- Fetch CSV & Load Data ---
         async function initDashboard() {
             let csvRecords = [];
-            let currentOpponent = 'Ipswich Town';
 
             try {
                 const response = await fetch('tickets.csv');
@@ -457,11 +477,10 @@
                 console.warn('Unable to load tickets.csv:', err);
             }
 
-            // Update top card ticket holder
-            const holderEl = document.getElementById('val-holder');
-            holderEl.textContent = getHolderName(currentOpponent, csvRecords);
+            // Dynamically set top overview card based on today's date
+            updateNextMatchCard(csvRecords);
 
-            // Render table with ticket holders
+            // Render full season table
             renderSeasonTable(csvRecords);
         }
 
